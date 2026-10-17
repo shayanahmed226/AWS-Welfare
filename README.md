@@ -18,13 +18,13 @@ npm run build
 npm run preview
 ```
 
-Deploy the generated `dist/` folder to a static host.
+Deploy the generated `dist/` folder to a static host. The build also writes production files to the repository root, so GitHub Pages can serve either `main` / (root) or `gh-pages` / (root). Source files live in `site/`; run `npm run build` before publishing changes.
 
 ## Integration notes
 
 - Donation interactions are explicitly labeled previews. No payment is collected.
 - The volunteer form downloads a local JSON interest note. No information is transmitted or stored by the society.
-- Replace `public/emblem.svg`, a temporary brand-inspired emblem, with the supplied official logo asset when available in the repository.
+- Replace `site/public/emblem.svg`, a temporary brand-inspired emblem, with the supplied official logo asset when available in the repository.
 - Images use Unsplash and fonts use Google Fonts; these require internet access in visitors’ browsers.
 - No unverified impact numbers, payment credentials, or contact details are included.
 - Animation respects the system reduced-motion setting.
