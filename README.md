@@ -2,6 +2,12 @@
 
 The installable bilingual WordPress implementation is in [wordpress/](wordpress/README.md), including separate theme/plugin ZIPs, source, tests and operations guides. It provides persistent manual bank-transfer verification and administration. WordPress needs PHP/database hosting; GitHub Pages cannot run it.
 
+## GitHub Pages client preview
+
+The repository root now contains a static export of the actual WordPress theme for client review at https://shayanahmed226.github.io/AWS-Welfare/. It includes English and Urdu pages. Payments and form submissions are deliberately disabled; WordPress administration and persistent workflows still require PHP/database hosting.
+
+Regenerate from a local WordPress install with `node wordpress/tools/export-preview.cjs`. The default output is `/tmp/awsw-client-preview`; publish that directory to GitHub Pages. The exporter preserves the theme’s local fonts and assets.
+
 ## Earlier static prototype
 
 
@@ -23,7 +29,7 @@ npm run build
 npm run preview
 ```
 
-Deploy the generated `dist/` folder to a static host. The build also writes production files to the repository root, so GitHub Pages can serve either `main` / (root) or `gh-pages` / (root). Source files live in `site/`; run `npm run build` before publishing changes.
+The commands below belong to the legacy Vite prototype. Running its build overwrites the repository-root client preview; regenerate the WordPress preview before deployment. Deploy the generated `dist/` folder to a static host. The build also writes production files to the repository root, so GitHub Pages can serve either `main` / (root) or `gh-pages` / (root). Source files live in `site/`; run `npm run build` before publishing changes.
 
 ## Integration notes
 

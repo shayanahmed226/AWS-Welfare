@@ -1,6 +1,6 @@
 # AWS Welfare — WordPress implementation
 
-This is the installable WordPress product. The repository’s earlier root Vite site is a separate static prototype and cannot process donations. GitHub Pages cannot run these PHP packages.
+This is the installable WordPress product. The repository-root GitHub Pages site is a static client preview exported from this theme and cannot process donations. The earlier Vite prototype remains under site/. GitHub Pages cannot run these PHP packages.
 
 ## Packages
 
@@ -33,3 +33,7 @@ No bank account, official contact, registration claim, beneficiary photograph, t
 `tests/`: financial, real-browser and security tests requiring a disposable installation. They are not run on activation and must never run against production.
 
 Rebuild archives with `bash wordpress/tools/package.sh` from the repository root. Activate the plugin independently of the theme; deactivating or changing the theme never deletes operational data. There is intentionally no automatic uninstall deletion.
+
+## Client preview on GitHub Pages
+
+`node wordpress/tools/export-preview.cjs` exports 26 English/Urdu pages from the clean local WordPress installation (port 8089 by default) to `/tmp/awsw-client-preview`. It preserves the actual theme rendering, self-hosted fonts and navigation, maps paths for `/AWS-Welfare/`, labels the site as a client design preview, and disables submissions without exposing WordPress nonces or personal-data form names. Set `AWSW_PREVIEW_SOURCE` and `AWSW_PREVIEW_OUT` to override the local source/output. Publish the export directory to GitHub Pages; the live admin/database are not included.
