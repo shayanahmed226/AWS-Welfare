@@ -4,7 +4,7 @@
 
 A PHP/database WordPress host is required for `https://awswelfareorg.com/`. GitHub Pages only serves the separate static prototype. DNS/hosting credentials and authorization to replace an existing live site have not been supplied; no production domain or existing site was changed.
 
-Use HTTPS and an actively supported WordPress release, PHP 8.1+ with mysqli, fileinfo, mbstring and image support, MySQL 8+ or MariaDB 10.6+, InnoDB tables, persistent disk, backups, and an email transport. The implementation uses native WordPress functionality; no paid licenses. WordPress core/plugin security updates remain a host responsibility.
+Use HTTPS and an actively supported WordPress release, PHP 8.1+ with mysqli, fileinfo, mbstring and image support, MySQL 8+ or MariaDB 10.6+, InnoDB tables, persistent disk, backups, and an email transport. Version 1.1 also includes Application Manager and Assistance Manager roles; assign them separately for private requests. The implementation uses native WordPress functionality; no paid licenses. WordPress core/plugin security updates remain a host responsibility.
 
 ## Install the two ZIPs
 
@@ -54,3 +54,7 @@ Exclude `/donate/`, `/donation-confirmation/`, `/contact/`, `/volunteer/`, all `
 ## Fresh installation validation
 
 Both ZIPs were installed and activated via WP-CLI against a clean official WordPress Docker image, then exercised through Apache and Chromium. Full findings and limits are in TEST-REPORT.md. This does not establish installation or email delivery on your eventual production host.
+
+## Upgrading from the earlier starter
+
+Install both version 1.1 ZIPs after a backup. The core performs non-destructive schema additions, leaving existing financial records and cases in place. Use Create missing starter pages to add new routes. Existing authored page content is preserved; follow CONTENT.md for deliberate changes to the old Volunteer/Impact/Transparency/Home starter layouts. This is not an automatic replacement of an existing production website.

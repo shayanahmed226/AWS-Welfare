@@ -16,11 +16,12 @@ No paid license, page builder, translation subscription, gateway plugin or exter
 1. Follow [installation](docs/SETUP.md).
 2. Configure verified details and review [launch blockers](docs/LAUNCH.md).
 3. Read [campaigns and translations](docs/CONTENT.md) and [bank-transfer verification](docs/DONATIONS.md).
-4. Configure [email and gateway prerequisites](docs/INTEGRATIONS.md).
-5. Arrange [private storage, retention, backups and restore](docs/OPERATIONS.md).
-6. Review the [executed test report](docs/TEST-REPORT.md).
+4. Read [application operations](docs/APPLICATIONS.md).
+5. Configure [email and gateway prerequisites](docs/INTEGRATIONS.md).
+6. Arrange [private storage, retention, backups and restore](docs/OPERATIONS.md).
+7. Review the [executed test report](docs/TEST-REPORT.md).
 
-No bank account, official contact, registration claim, beneficiary photograph, testimonial, impact count or live campaign is bundled. Payment submissions are disabled until required bank details are configured. Policies begin as review drafts. No online gateway is enabled.
+No bank account, official contact, registration claim, beneficiary photograph, testimonial, impact count or live campaign is bundled. Version 1.1 adds private emailed donation status, step-based contributions, separate volunteer/assistance/partnership workflows, an editorial blog, reports and consent-approved gallery. Payment submissions are disabled until required bank details are configured. Policies begin as review drafts. No online gateway is enabled.
 
 ## Source map
 
@@ -36,4 +37,4 @@ Rebuild archives with `bash wordpress/tools/package.sh` from the repository root
 
 ## Client preview on GitHub Pages
 
-`node wordpress/tools/export-preview.cjs` exports 26 English/Urdu pages from the clean local WordPress installation (port 8089 by default) to `/tmp/awsw-client-preview`. It preserves the actual theme rendering, self-hosted fonts and navigation, maps paths for `/AWS-Welfare/`, labels the site as a client design preview, and disables submissions without exposing WordPress nonces or personal-data form names. Set `AWSW_PREVIEW_SOURCE` and `AWSW_PREVIEW_OUT` to override the local source/output. Publish the export directory to GitHub Pages; the live admin/database are not included.
+`node wordpress/tools/export-preview.cjs` exports 60 core English/Urdu pages plus any published editorial pages from the clean local WordPress installation (port 8090 by default) to `/tmp/awsw-client-preview`. It preserves the actual theme rendering, self-hosted fonts and navigation, maps paths for `/AWS-Welfare/`, labels the site as a client design preview, and disables submissions without exposing WordPress nonces or personal-data form names. Set `AWSW_PREVIEW_SOURCE` and `AWSW_PREVIEW_OUT` to override the local source/output. Publish the export directory to GitHub Pages; the live admin/database are not included.

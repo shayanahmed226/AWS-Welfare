@@ -2,7 +2,7 @@
 
 ## Storage and permissions
 
-Campaigns/updates/reports/metrics are WordPress custom post types. Core operational data lives in `{prefix}awsw_donations`, `{prefix}awsw_audit` and `{prefix}awsw_enquiries`. Tables are InnoDB; monetary values are unsigned integer paisa. All operational queries use WordPress database APIs and prepared variable parameters. Staff transitions are transactional and append-only. Changing themes/deactivating the plugin never removes this data; the plugin intentionally has no uninstall deletion routine.
+Campaigns/updates/reports/metrics are WordPress custom post types. Core operational data lives in `{prefix}awsw_donations`, `{prefix}awsw_audit` and `{prefix}awsw_enquiries`; application reviews are recorded in `{prefix}awsw_case_events`. Tables are InnoDB; monetary values are unsigned integer paisa. All operational queries use WordPress database APIs and prepared variable parameters. Staff transitions are transactional and append-only. Changing themes/deactivating the plugin never removes this data; the plugin intentionally has no uninstall deletion routine.
 
 Proof files are in the host-provisioned `AWSW_PRIVATE_DIR`, outside public roots, with private directory permissions and file mode 0600. The plugin rejects wrong extensions/content, executable/SVG files and oversized files. Public financial proof URLs do not exist. Review PHP settings, web root and permissions on your actual host. An OS/host compromise is outside the protection offered by WordPress capabilities.
 
@@ -41,3 +41,7 @@ Backup/restore instructions are supplied; restoration of a real organization's b
 Build/test on staging and back up first. Package with `tools/package.sh`. Verify `sha256sum -c SHA256SUMS`. Upload matching theme/plugin ZIPs; WordPress can replace the existing versions after review. Schema version is checked on activation/init, with non-destructive dbDelta changes. Large future migrations require a separate tested plan. Purge host caches for public aggregates after status changes, without caching private routes. Test before repointing DNS or replacing a live site. Keep WordPress, PHP and database supported and patched.
 
 Use the existing isolated checkout for development; do not create a Git worktree unless explicitly requested. Processes need starting again in a fresh task. Files/volumes alone are not evidence that WordPress/database processes are running.
+
+Private access hashes/expiry in donation records must remain confidential. Exclude donation-status and submission-confirmation responses from all page caches. Assistance records require their separate capability; do not give that capability to ordinary Content Editors. Case erasure/deletion also removes related private review notes, while financial history remains append-only.
+
+Uploaded proofs are untrusted documents even after extension/content validation. Review them with maintained software and the host's approved scanning/review process; never move them into public media. Public gallery consent is a separate workflow from financial proof review.

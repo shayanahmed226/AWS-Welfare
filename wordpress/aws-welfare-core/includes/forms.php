@@ -1,9 +1,9 @@
 <?php
 if (!defined('ABSPATH')) { exit; }
 function awsw_request($key) { return isset($_POST[$key]) && is_scalar($_POST[$key]) ? trim(wp_unslash((string) $_POST[$key])) : ''; }
-function awsw_fail($en, $ur, $code = 400) { wp_die(esc_html(awsw_t($en, $ur)), esc_html(awsw_t('Please check your submission', 'درخواست چیک کریں')), ['response' => $code, 'back_link' => true]); }
+function awsw_fail($en, $ur, $code = 400) { if (awsw_wants_json()) { wp_send_json_error(['message'=>awsw_t($en,$ur)],$code); } wp_die(esc_html(awsw_t($en, $ur)), esc_html(awsw_t('Please check your submission', 'درخواست چیک کریں')), ['response' => $code, 'back_link' => true]); }
 function awsw_form_guard($kind) {
-    if (!wp_verify_nonce(awsw_request('_awsw_nonce'), 'awsw_' . $kind)) { awsw_fail('The form expired. Reload the page and try again.', 'فارم کی میعاد ختم ہو گئی ہے۔ صفحہ دوبارہ کھولیں۔', 403); }
+    if (!wp_verify_nonce(awsw_request('_awsw_nonce'), 'awsw_' . $kind)) { if(awsw_wants_json()){wp_send_json_error(['message'=>awsw_t('The form expired. Security has been refreshed; retry without clearing your details.','فارم کی حفاظتی میعاد ختم ہو گئی تھی۔ معلومات موجود ہیں؛ دوبارہ بھیجیں۔'),'nonce'=>wp_create_nonce('awsw_'.$kind)],403);} awsw_fail('The form expired. Reload the page and try again.', 'فارم کی میعاد ختم ہو گئی ہے۔ صفحہ دوبارہ کھولیں۔', 403); }
     if (awsw_request('website_url') !== '') { awsw_fail('Unable to accept this submission.', 'درخواست قبول نہیں کی جا سکی۔'); }
 }
 function awsw_rate_limit($kind) {
@@ -38,7 +38,7 @@ function awsw_donate_submit() {
     if (!preg_match('/^[a-f0-9]{48}$/D', $token) || !hash_equals(hash_hmac('sha256', $token, wp_salt('nonce')), awsw_request('signature'))) { awsw_fail('Invalid submission. Reload the form.', 'فارم دوبارہ کھولیں۔ درخواست درست نہیں۔'); }
     global $wpdb; $table = $wpdb->prefix . 'awsw_donations'; $hash = hash('sha256', $token);
     $existing = $wpdb->get_row($wpdb->prepare("SELECT reference FROM $table WHERE submission_hash=%s", $hash));
-    if ($existing) { wp_safe_redirect(add_query_arg('ref', $existing->reference, awsw_url('donation-confirmation/'))); exit; }
+    if ($existing) { awsw_donation_redirect($existing->reference); }
     $minor = awsw_parse_money(awsw_request('amount')); $campaign = absint(awsw_request('campaign'));
     if ($minor === false || $minor < 100 || $minor > 99999999999) { awsw_fail('Enter a valid amount from PKR 1 to 999,999,999.99.', 'درست رقم درج کریں: ۱ سے ۹۹۹،۹۹۹،۹۹۹٫۹۹ روپے تک۔'); }
     if ($campaign && (get_post_type($campaign) !== 'awsw_campaign' || get_post_status($campaign) !== 'publish' || get_post_meta($campaign, '_awsw_status', true) !== 'active')) { awsw_fail('This campaign is not accepting donations.', 'یہ مہم فی الحال عطیات قبول نہیں کر رہی۔'); }
@@ -54,24 +54,12 @@ function awsw_donate_submit() {
     if (!$ok) {
         if ($proof[0]) { @unlink(awsw_private_dir() . '/' . $proof[0]); }
         $same = $wpdb->get_var($wpdb->prepare("SELECT reference FROM $table WHERE submission_hash=%s", $hash));
-        if ($same) { wp_safe_redirect(add_query_arg('ref', $same, awsw_url('donation-confirmation/'))); exit; }
+        if ($same) { awsw_donation_redirect($same); }
         awsw_fail('The donation could not be saved. The reference may already be recorded; contact the society before resubmitting.', 'عطیہ محفوظ نہیں ہوا۔ دوبارہ بھیجنے سے پہلے ادارے سے رابطہ کریں۔', 409);
     }
-    wp_safe_redirect(add_query_arg('ref', $ref, awsw_url('donation-confirmation/'))); exit;
+    awsw_donation_redirect($ref);
 }
-function awsw_enquiry_submit() {
-    $kind = awsw_request('kind') === 'volunteer' ? 'volunteer' : 'contact'; awsw_form_guard($kind);
-    $data = []; foreach (['name','email','phone','city','interests','availability','message'] as $key) { $data[$key] = $key === 'email' ? sanitize_email(awsw_request($key)) : sanitize_textarea_field(awsw_request($key)); if (mb_strlen($data[$key]) > 3000) { awsw_fail('A field is too long.', 'درج کردہ متن بہت طویل ہے۔'); } }
-    if (!$data['name'] || !is_email($data['email']) || awsw_request('consent') !== '1' || ($kind === 'contact' && !$data['message']) || ($kind === 'volunteer' && (!$data['phone'] || !$data['city'] || !$data['interests'] || !$data['availability']))) { awsw_fail('Complete the required fields and consent.', 'ضروری خانے پُر کریں اور رضامندی دیں۔'); }
-    if (!awsw_rate_limit('enquiry')) { awsw_fail('Please wait 20 seconds before trying again.', '۲۰ سیکنڈ انتظار کریں۔', 429); }
-    global $wpdb;
-    if (!$wpdb->insert($wpdb->prefix . 'awsw_enquiries', ['kind' => $kind,'payload' => wp_json_encode($data),'created_at' => current_time('mysql', true)])) { awsw_fail('Could not save your message. Please try later.', 'پیغام محفوظ نہیں ہوا۔ کچھ دیر بعد دوبارہ کوشش کریں۔', 503); }
-    $id = $wpdb->insert_id; $to = sanitize_email(awsw_setting('notification_email')) ?: get_option('admin_email');
-    // Notify without including private submission data in email logs.
-    $sent = wp_mail($to, 'AWS Welfare: new ' . $kind . ' enquiry', 'A new enquiry is available in the protected WordPress administration: ' . admin_url('admin.php?page=awsw-enquiries'));
-    $wpdb->update($wpdb->prefix . 'awsw_enquiries', ['email_state' => $sent ? 'accepted' : 'failed'], ['id' => $id]);
-    wp_safe_redirect(add_query_arg('awsw_notice', 'saved', awsw_url($kind . '/'))); exit;
-}
+function awsw_enquiry_submit() { awsw_case_submit(); }
 foreach (['awsw_donate' => 'awsw_donate_submit','awsw_enquiry' => 'awsw_enquiry_submit'] as $action => $handler) { add_action('admin_post_' . $action, $handler); add_action('admin_post_nopriv_' . $action, $handler); }
 add_action('admin_post_awsw_proof', function () {
     if (!current_user_can('awsw_manage_donations')) { wp_die('Permission denied.', '', ['response' => 403]); }

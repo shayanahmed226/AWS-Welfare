@@ -12,6 +12,7 @@ function awsw_field($post_id, $key, $english = '') {
 }
 add_filter('language_attributes', function ($output) { return is_admin() ? $output : 'lang="' . (awsw_lang() === 'ur' ? 'ur-PK' : 'en-PK') . '" dir="' . (awsw_lang() === 'ur' ? 'rtl' : 'ltr') . '"'; });
 add_filter('the_content', function ($content) {
+    if (doing_filter('get_the_excerpt')) { return $content; }
     if ('ur' === awsw_lang() && is_singular('page') && in_the_loop() && is_main_query()) {
         $ur = get_post_meta(get_the_ID(), '_awsw_ur_content', true);
         if ($ur) { return do_blocks($ur); }
@@ -41,6 +42,6 @@ add_filter('pre_get_document_title', function ($title) {
     return $title;
 });
 add_filter('wp_sitemaps_posts_query_args', function ($args, $type) {
-    if ($type === 'page') { foreach (['donation-confirmation','payment-cancelled'] as $slug) { $p = get_page_by_path($slug); if ($p) { $args['post__not_in'][] = $p->ID; } } }
+    if ($type === 'page') { foreach (['donation-confirmation','donation-status','submission-confirmation','payment-cancelled'] as $slug) { $p = get_page_by_path($slug); if ($p) { $args['post__not_in'][] = $p->ID; } } }
     return $args;
 }, 10, 2);

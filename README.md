@@ -4,7 +4,7 @@ The installable bilingual WordPress implementation is in [wordpress/](wordpress/
 
 ## GitHub Pages client preview
 
-The repository root now contains a static export of the actual WordPress theme for client review at https://shayanahmed226.github.io/AWS-Welfare/. It includes English and Urdu pages. Payments and form submissions are deliberately disabled; WordPress administration and persistent workflows still require PHP/database hosting.
+The repository root now contains a static export of the actual WordPress theme for client review at https://shayanahmed226.github.io/AWS-Welfare/. It includes 66 English/Urdu pages, including clearly labeled editorial examples and review-draft policies. The WordPress packages are version 1.1 with private donation status, application workflows, blog, reports and gallery. Payments and form submissions are deliberately disabled; WordPress administration and persistent workflows still require PHP/database hosting.
 
 Regenerate from a local WordPress install with `node wordpress/tools/export-preview.cjs`. The default output is `/tmp/awsw-client-preview`; publish that directory to GitHub Pages. The exporter preserves the theme’s local fonts and assets.
 

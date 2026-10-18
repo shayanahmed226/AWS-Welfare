@@ -2,17 +2,19 @@
 // This is a design preview; PHP, administration and financial workflows stay in WordPress.
 const { chromium } = require('playwright');
 const fs = require('fs'); const path = require('path');
-const source = process.env.AWSW_PREVIEW_SOURCE || 'http://localhost:8089';
+const source = process.env.AWSW_PREVIEW_SOURCE || 'http://localhost:8090';
 const out = process.env.AWSW_PREVIEW_OUT || '/tmp/awsw-client-preview';
 const prefix = '/AWS-Welfare/';
-const pages = ['', 'about', 'programs', 'food', 'education', 'water', 'medical', 'campaigns', 'donate', 'impact', 'transparency', 'volunteer', 'contact'];
+const pages = ['', 'about','team','programs','food','education','water','medical','campaigns','donate','donation-status','impact','updates','transparency','get-involved','volunteer','volunteer-application','request-assistance','partnerships','in-kind','blog','gallery','faq','contact','privacy','donation-policy','terms','donation-confirmation','submission-confirmation','payment-cancelled'];
+
 (async () => {
  fs.mkdirSync(out, {recursive:true});
  fs.cpSync(path.resolve(__dirname,'../aws-welfare-theme/assets'),path.join(out,'_preview/theme/assets'),{recursive:true});
  fs.cpSync(path.resolve(__dirname,'../aws-welfare-core/assets'),path.join(out,'_preview/core/assets'),{recursive:true});
- const b = await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']}); const c = await b.newContext();const p=await c.newPage();
+ const b = await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']}); const c = await b.newContext({javaScriptEnabled:false});const p=await c.newPage();
+ const postResponse=await c.request.get(source+'/wp-json/wp/v2/posts?per_page=100&_fields=slug');if(!postResponse.ok())throw Error('Cannot read public editorial routes');if(Number(postResponse.headers()['x-wp-total'])>100)throw Error('More than 100 posts; expand exporter pagination before publishing.');for(const post of await postResponse.json()){if(post.slug!=='hello-world'&&!pages.includes(post.slug))pages.push(post.slug);}
  for (const lang of ['en','ur']) for (const slug of pages) {
-  const response = await p.goto(`${source}/${slug ? slug+'/' : ''}?lang=${lang}`);
+  const response = await p.goto(`${source}/${slug ? slug+'/' : ''}?lang=${lang}${slug==='donate'?'&design_preview=1':''}`);
   if (response.status() !== 200) throw Error(`Export failed: ${slug} ${lang}`);
   await p.evaluate(({prefix,source,lang}) => {
    const local = new URL(source);
@@ -37,7 +39,7 @@ const pages = ['', 'about', 'programs', 'food', 'education', 'water', 'medical',
    const banner=document.createElement('div');banner.className='awsw-announcement';banner.setAttribute('data-preview-banner','');banner.textContent=lang==='ur'?'کلائنٹ ڈیزائن پیش منظر · ادائیگیاں اور فارم جمع کرانا دستیاب نہیں':'CLIENT DESIGN PREVIEW · Payments and form submissions are not enabled';document.body.prepend(banner);
    document.querySelectorAll('.awsw-animate-in').forEach(e=>e.classList.remove('awsw-animate-in'));
   },{prefix,source,lang});
-  const dest=path.join(out,lang==='ur'?'ur':'',slug);fs.mkdirSync(dest,{recursive:true});fs.writeFileSync(path.join(dest,'index.html'),await p.content());
+  const dest=path.join(out,lang==='ur'?'ur':'',slug);fs.mkdirSync(dest,{recursive:true});fs.writeFileSync(path.join(dest,'index.html'),(await p.content()).replace(/[ \t]+$/gm,''));
  }
  fs.writeFileSync(path.join(out,'.nojekyll'),'');fs.copyFileSync(path.join(out,'index.html'),path.join(out,'404.html'));
  await b.close();console.log(`Exported ${pages.length*2} English/Urdu pages from the actual WordPress theme.`);

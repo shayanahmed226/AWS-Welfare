@@ -44,3 +44,31 @@ wp eval-file /path/to/wordpress/tools/demo.php remove
 ```
 
 The importer creates one visibly labeled, paused, local-only sample campaign with a demo target. It creates no bank details, donations, beneficiaries, metrics or historical claims. Re-import is idempotent. Removal deletes only tagged demo records; a demo campaign with financial records is unpublished instead of deleting its financial association. Never import demos on production.
+
+## Version 1.1: expanded platform pages
+
+New starter routes: `/team/`, `/get-involved/`, `/volunteer-application/`, `/request-assistance/`, `/partnerships/`, `/in-kind/`, `/blog/`, `/updates/`, `/gallery/`, `/faq/`, `/donation-status/`, `/submission-confirmation/`.
+
+Volunteer is now an overview with an application CTA; applications have a dedicated page. Impact and Transparency use the new period/type/year-aware directories. On an existing site the starter creator **preserves authored pages**: review existing Volunteer, Impact and Transparency content and replace the old starter shortcodes with `[awsw_volunteer_overview]`, `[awsw_impact_extended]`, and `[awsw_transparency][awsw_reports]` respectively. Update Home with the new starter layout only after backing up your authored content. No migration silently overwrites your page copy.
+
+New sites receive editable homepage blocks (including quick contribution entry and latest articles), editable static overview/participation narrative, and native HTML blocks for program introductions plus live dynamic campaign/update sections. Gutenberg HTML blocks remain editable and can be replaced with native heading/paragraph/image blocks. Dynamic interface labels/shortcodes are bilingual PHP components; copy around them is authored in WordPress. Keep operational form shortcodes intact.
+
+### Editorial content
+
+Blog uses native WordPress posts/categories and real author/publication dates, with search, category filtering, pagination, featured layout, related articles and clipboard sharing. The default WordPress “Hello world” sample is excluded. Draft example articles can be authored explicitly; none are published as fictitious organizational activity. Add Urdu excerpt/content/title in the AWS meta box. Featured images and optional credit must be approved. Long-form headings, lists, quotations, embeds and galleries use Gutenberg. No automatic table of contents dependency is introduced.
+
+Project Updates have search and program filtering, paginated results, location, milestone status, related report, dates and bilingual content. Report directories filter by **publication year** and Report Type (Financial, Project, Registration), paginate, and link approved public PDFs. Reporting periods remain separate editable fields; a PDF is not created merely by publishing a report post.
+
+Impact’s reporting-period selector appears only when periods exist in published metrics. Values still require evidence/authorized editors; unsupported charts are not rendered. Completed project highlights use explicitly completed campaigns, never a funding-percentage inference. Blog, gallery, reports and metrics retain honest empty states.
+
+### Team, gallery and privacy
+
+Use Team Members for real approved profiles, role/responsibility text and photographs. No seeded people/advisers. The public Team page links governance and transparency. Fill actual story dates in About’s editable timeline section; no dates are invented.
+
+Use Approved Gallery to create photo records. **Upload only photographs already approved for public use**, set a featured image, caption/title, program and Urdu fields, and enter `1` in the gallery consent/approval field only after review. The directory excludes other records. Attachment files in WordPress Media Library are public; review image consent **before uploading**, not only before publishing a gallery record. Gallery viewer supports keyboard open, previous/next arrows, Escape and restored focus; without JavaScript the original image link remains usable. Never use this gallery for donor proofs or assistance documents.
+
+### Reusable UI and motion
+
+Tokens live in theme CSS (`--awsw-space-*`, radius/shadow/motion/content and brand colors) plus theme.json. Interface icons use one inline SVG family. No Tailwind CDN, Laravel backend, animation library or paid dependency. Entrance transitions are 180–300ms; content is never initially hidden. Continuous decorative rotation was removed. Reduced-motion overrides disable transitions/animation. Grouped navigation uses native accessible details/summary dropdowns and Escape handling; it also works without JavaScript.
+
+Optional editorial-only samples: `wp eval-file tools/editorial-demo.php import` creates three clearly labeled **draft** educational articles on a local environment, without fictional project history or figures. `remove` deletes only those tagged samples. They are never published by plugin activation. The GitHub design preview may include explicitly labeled examples for visual review; they are not organizational news. Review/strip GPS and other sensitive metadata and check consent before uploading any approved public photographs.

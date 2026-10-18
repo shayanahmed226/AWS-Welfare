@@ -41,3 +41,21 @@ Use a **disposable local** WordPress setup only. The tests create synthetic reco
 3. Run `node tests/browser.cjs` then `node tests/security.cjs` with Playwright/Chromium available, targeting the documented local QA stack. Browser tests add explicitly synthetic bank settings; remove them after QA. Security tests use random local credentials from the ephemeral env file.
 4. Optional: install `@axe-core/playwright` in an isolated QA tools directory and set `AWSW_AXE_MODULE` to it, then run `node tests/accessibility.cjs`.
 5. See `tests/` source for assertions. Do not seed QA data into production or interpret synthetic campaign values as organizational activity.
+
+## Version 1.1 extension validation — 18 October 2026
+
+The expanded theme/plugin were installed on a new empty WordPress instance (separate database prefix) using the real installable ZIPs. The prior operational QA install was also upgraded non-destructively. The legacy financial suite passed **32 assertions**, updated original public-browser suite **47**, and private-proof/security suite **19** on the expanded implementation.
+
+New suites executed:
+
+- **85 platform assertions**: new English/Urdu routes; all five requested home widths; dropdown keyboard/Escape behavior; amount handoff; donation step persistence; language-reset warning; real stored submission and pending summary; private 256-bit access, reference-only denial, invalid/expired/revoked links and confirmed acknowledgment download; all four case kinds stored once on replay and initially new; recoverable server-error value preservation/retry; FAQ filtering; no-JS donation/navigation; no JS runtime errors.
+- **16 editorial/admin assertions**: real WordPress posts/search/pagination/single article/clipboard; searchable project updates; report year/type filters; evidence-backed metric-period selection; approved-only gallery, keyboard viewer/arrow/Escape/focus restoration; separate assistance permission, query-parameter bypass denial, authorized application review/audit, and bank-setting denial for application staff.
+- **240 responsive route checks**: 24 public routes × English/Urdu × 360/390/768/1024/1440px on a fresh ZIP installation, with HTTP success, a single H1 and no horizontal overflow.
+- Automated axe-core tagged checks on English/Urdu home and configured donation flow plus English volunteer: **zero reported violations** after correcting small step-number contrast. These remain automated checks, not WCAG certification.
+- Anonymous direct REST access to internal gallery/team records is denied; only approved public gallery rendering is intended for visitors. Public Media Library files must be approved before upload.
+
+Regression findings fixed during implementation: legacy form `name="action"` shadowing the JavaScript form action property; Urdu recursive excerpt translation when campaign cards render inside the homepage; late admin permission denial returning an already-sent 200 response; and low-contrast small step labels. Required workflows were rerun after corrections. No production transfer, real email delivery, supplied-organization content validation, real-host backup restoration or gateway was tested.
+
+Version 1.1 test sources: `platform-v11.cjs`, `editorial-fixtures.php`, `editorial-v11.cjs`, `responsive-v11.cjs` plus the updated original suites. The QA editorial fixture creates **clearly labeled local synthetic test content** only; it is not bundled as live organization data and must not be copied to production. Screenshots were reviewed separately. Third-party editorial records/proofs remain controlled by WordPress/staff permissions.
+
+Final client-export checks covered **40 English/Urdu static routes**, including review-draft policies and labeled educational demo articles, local asset/font loading, a single interactive design-only donation wizard and disabled payment/data submission. That test caught and corrected a mobile footer layout override when policy links were present. The client export uses server-rendered markup without pre-running enhancement scripts, avoiding duplicated step controls. The exported site contains no real bank account or submitted records.

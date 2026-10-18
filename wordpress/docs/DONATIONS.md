@@ -44,3 +44,13 @@ Donation exports include private operational data and paisa integer amounts. The
 ## Totals vs delivery
 
 Fundraising is a database aggregate of confirmed contributions. Delivery is staff-entered dated milestones and updates. Collecting the target does not establish procurement, distribution or project completion. Approved metrics require definition, period, evidence and an authorized editor. No “100% donation,” tax deductibility or registration promises are included.
+
+## Version 1.1: steps and private status access
+
+The donation form enhances to three in-page steps (contribution, donor details, transfer) and a fourth confirmation screen. Back/Continue preserve values in the page; no personal data is put in browser storage. Without JavaScript all fieldsets remain visible and usable. The homepage amount-entry panel carries only a non-sensitive amount to Donate. Language switching warns before discarding unsent information.
+
+A successfully stored donation grants a random 256-bit private access token. Only its SHA-256 hash and expiry are stored in the database. Confirmation shows the submitted amount, campaign/general fund, reference and current pending-verification state through this verified access. The private status page displays state, reference, amount, purpose and Karachi submission date, **never donor names, email or proofs**. A reference alone cannot retrieve the record.
+
+A secure link is also requested by email. `/donation-status/` can reissue a link only to the matching stored donation email/reference; public responses are generic and rate-limited. Links expire after 30 days. Reissuing or sending the confirmed acknowledgment rotates the token and revokes older links. Email failure does not undo a donation; the initial verified confirmation access works, and staff must resolve actual email delivery. Never put access tokens into analytics/logging exports. The pages are no-store/noindex with no-referrer responses; enforce the same exclusions at your CDN.
+
+After confirmation the private status page offers a UTF-8 plain-text **donation acknowledgment**, not a tax receipt. It requires valid unexpired access and a confirmed record. Pending/rejected/refunded or invalid/expired access cannot download it. Privacy erasure revokes access tokens as well as removing proofs/contact identity. This site does not expose a publicly searchable donor directory.

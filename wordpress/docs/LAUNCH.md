@@ -14,6 +14,8 @@ This package is installable and locally tested. It is **not a production launch*
 - [ ] Approved, consent-appropriate organizational photographs. Current artwork/placeholders are explicitly not proof of project activity.
 - [ ] Reviewed impact definitions, reporting periods, internal evidence references and authorized editors. No impact figures are seeded.
 - [ ] Real approved reports/PDFs with reporting dates and verified summaries, and registration documents if available.
+- [ ] Assistance safeguarding/review process, application retention periods, staff responsibilities and real volunteer opportunities (or retain the general-interest empty state).
+- [ ] Approved team roles/photos, editorial posts, report types and consent-reviewed gallery images; remove all QA/sample content.
 - [ ] Staff donation reconciliation/refund procedure and least-privilege accounts.
 - [ ] Persistent nonpublic proof storage, upload limits, encryption/backups and tested staff-only download on the target host.
 - [ ] Configured domain-authenticated email transport with controlled inbox delivery tests. Fix failed acknowledgment/notification status and test retry.

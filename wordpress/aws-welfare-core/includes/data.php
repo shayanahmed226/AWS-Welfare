@@ -22,6 +22,8 @@ function awsw_activate() {
         proof_mime varchar(40) NOT NULL DEFAULT '',
         language varchar(2) NOT NULL DEFAULT 'en',
         email_state varchar(20) NOT NULL DEFAULT 'not_sent',
+        access_hash varchar(64) DEFAULT NULL,
+        access_until datetime DEFAULT NULL,
         created_at datetime NOT NULL,
         updated_at datetime NOT NULL,
         PRIMARY KEY  (id),
@@ -29,6 +31,7 @@ function awsw_activate() {
         UNIQUE KEY submission_hash (submission_hash),
         UNIQUE KEY transfer_hash (transfer_hash),
         KEY campaign_status (campaign_id,status),
+        KEY access_hash (access_hash),
         KEY created_at (created_at)
     ) ENGINE=InnoDB $c;");
     dbDelta("CREATE TABLE {$p}awsw_audit (
@@ -46,19 +49,35 @@ function awsw_activate() {
         id bigint unsigned NOT NULL AUTO_INCREMENT,
         kind varchar(16) NOT NULL,
         payload longtext NOT NULL,
+        submission_hash varchar(64) DEFAULT NULL,
+        status varchar(20) NOT NULL DEFAULT 'new',
         email_state varchar(20) NOT NULL DEFAULT 'not_sent',
         created_at datetime NOT NULL,
-        PRIMARY KEY  (id)
+        PRIMARY KEY  (id),
+        UNIQUE KEY submission_hash (submission_hash)
     ) ENGINE=InnoDB $c;");
+    dbDelta("CREATE TABLE {$p}awsw_case_events (
+        id bigint unsigned NOT NULL AUTO_INCREMENT,
+        case_id bigint unsigned NOT NULL,
+        actor_id bigint unsigned NOT NULL,
+        old_status varchar(20) NOT NULL,
+        new_status varchar(20) NOT NULL,
+        note text NOT NULL,
+        created_at datetime NOT NULL,
+        PRIMARY KEY  (id),
+        KEY case_id (case_id)
+    ) ENGINE=InnoDB $c;");
+    add_role('awsw_application_manager','Application Manager',['read'=>true,'awsw_manage_enquiries'=>true]);
+    add_role('awsw_assistance_manager','Assistance Manager',['read'=>true,'awsw_manage_assistance'=>true]);
     add_role('awsw_donation_manager', 'Donation Manager', ['read' => true, 'awsw_manage_donations' => true, 'awsw_export_donations' => true]);
-    if ($role = get_role('administrator')) { foreach (['awsw_manage_donations','awsw_export_donations','awsw_manage_settings','awsw_manage_enquiries'] as $cap) { $role->add_cap($cap); } }
+    if ($role = get_role('administrator')) { foreach (['awsw_manage_donations','awsw_export_donations','awsw_manage_settings','awsw_manage_enquiries','awsw_manage_assistance'] as $cap) { $role->add_cap($cap); } }
     awsw_register_content(); flush_rewrite_rules(); update_option('awsw_db_version', AWSW_VERSION);
 }
 function awsw_register_content() {
     foreach (['campaign' => ['Campaigns','Campaign'], 'update' => ['Project updates','Project update'], 'report' => ['Reports','Report'], 'metric' => ['Verified metrics','Verified metric']] as $key => $label) {
         register_post_type('awsw_' . $key, ['labels' => ['name' => $label[0], 'singular_name' => $label[1]], 'public' => true, 'has_archive' => true, 'rewrite' => ['slug' => $key === 'campaign' ? 'campaign' : $key], 'show_in_rest' => true, 'supports' => ['title','editor','excerpt','thumbnail','revisions','custom-fields'], 'menu_icon' => $key === 'campaign' ? 'dashicons-heart' : 'dashicons-portfolio', 'capability_type' => 'post', 'map_meta_cap' => true]);
     }
-    register_taxonomy('awsw_program', ['awsw_campaign','awsw_update','awsw_report','awsw_metric'], ['label' => 'Program', 'public' => true, 'hierarchical' => true, 'show_in_rest' => true]);
+    register_taxonomy('awsw_program', ['awsw_campaign','awsw_update','awsw_report','awsw_metric','awsw_photo'], ['label' => 'Program', 'public' => true, 'hierarchical' => true, 'show_in_rest' => true]);
     foreach (['food' => 'Food & ration','education' => 'Education','water' => 'Clean water','medical' => 'Medical support'] as $slug => $name) { if (!term_exists($slug, 'awsw_program')) { wp_insert_term($name, 'awsw_program', ['slug' => $slug]); } }
 }
 // PKR represented in paisa. No float conversion or arithmetic.
@@ -82,7 +101,9 @@ function awsw_acknowledge($id) {
     global $wpdb; $d = awsw_donation($id); if (!$d || $d->status !== 'confirmed') { return false; }
     $ur = $d->language === 'ur';
     $subject = $ur ? 'AWS Welfare: عطیہ کی تصدیق' : 'AWS Welfare: donation confirmed';
+    $access = function_exists('awsw_issue_access') ? awsw_issue_access($id) : '';
     $body = ($ur ? "آپ کے عطیے کی تصدیق ہو گئی ہے۔\nحوالہ: " : "Your donation has been verified.\nReference: ") . $d->reference . "\n" . awsw_money($d->amount_minor) . "\n\n" . ($ur ? 'یہ عطیہ وصول ہونے کی تصدیق ہے، ٹیکس رسید نہیں۔' : 'This is a donation acknowledgment, not a tax receipt.');
+    $body .= $access ? "\n\n" . ($ur ? 'محفوظ حالت اور تصدیق:' : 'Private status and acknowledgment:') . "\n" . add_query_arg(['access'=>$access,'lang'=>$d->language], home_url('/donation-status/')) : '';
     $sent = wp_mail($d->donor_email, $subject, $body);
     $wpdb->update($wpdb->prefix . 'awsw_donations', ['email_state' => $sent ? 'accepted' : 'failed'], ['id' => $id]);
     return $sent;

@@ -12,9 +12,21 @@ function awsw_starter_pages() {
         'medical'=>['Medical support','طبی معاونت','[awsw_program program="medical"]'],
         'campaigns'=>['Campaigns','مہمات','[awsw_campaigns]'],
         'donate'=>['Donate by bank transfer','بینک کے ذریعے عطیہ دیں','[awsw_donate]'],
-        'impact'=>['Impact & project updates','اثرات اور منصوبوں کی خبریں','[awsw_metrics][awsw_updates]'],
-        'transparency'=>['Transparency & reports','شفافیت اور رپورٹس','[awsw_transparency][awsw_updates type="awsw_report"]'],
-        'volunteer'=>['Be part of the good','خدمت کا حصہ بنیں','[awsw_volunteer_intro][awsw_enquiry type="volunteer"]'],
+        'impact'=>['Impact & accountability','اثرات اور جواب دہی','[awsw_impact_extended]'],
+        'transparency'=>['Transparency & reports','شفافیت اور رپورٹس','[awsw_transparency][awsw_reports]'],
+        'volunteer'=>['Volunteer with purpose','بامقصد رضاکارانہ خدمت','[awsw_volunteer_overview]'],
+        'team'=>['Team & governance','ٹیم اور انتظام','[awsw_team]'],
+        'get-involved'=>['Get involved','حصہ بنیں','[awsw_get_involved]'],
+        'volunteer-application'=>['Volunteer application','رضاکار درخواست','[awsw_enquiry type="volunteer"]'],
+        'request-assistance'=>['Request assistance','معاونت کی درخواست','[awsw_assistance_intro][awsw_enquiry type="assistance"]'],
+        'partnerships'=>['Corporate partnerships','اداروں کے ساتھ شراکت','[awsw_partnership_intro][awsw_enquiry type="partnership"]'],
+        'in-kind'=>['In-kind support','اشیاء کی صورت میں تعاون','[awsw_in_kind]'],
+        'blog'=>['Insights & stories','مضامین اور کہانیاں','[awsw_blog]'],
+        'updates'=>['Project updates','منصوبوں کی خبریں','[awsw_updates_directory]'],
+        'gallery'=>['Approved gallery','منظور شدہ تصاویر','[awsw_gallery]'],
+        'faq'=>['Helpful answers','مددگار جوابات','[awsw_faq]'],
+        'donation-status'=>['Private donation status','عطیے کی نجی حالت','[awsw_donation_status]'],
+        'submission-confirmation'=>['Request received','درخواست موصول ہوئی','[awsw_submission_confirmation]'],
         'contact'=>['Let’s talk','ہم سے بات کریں','[awsw_contact_details][awsw_enquiry type="contact"]'],
         'donation-confirmation'=>['Transfer submission','ٹرانسفر کی درخواست','[awsw_confirmation]'],
         'payment-cancelled'=>['Payment not completed','ادائیگی مکمل نہیں ہوئی','[awsw_cancelled]'],
@@ -24,7 +36,7 @@ function awsw_starter_pages() {
     ];
 }
 function awsw_create_pages() {
-    $ids=[];foreach(awsw_starter_pages() as $slug=>$data){$p=get_page_by_path($slug);if($p){$ids[$slug]=$p->ID;continue;}$content='<!-- wp:shortcode -->'.$data[2].'<!-- /wp:shortcode -->';$ur_content=$content;if($slug==='home'){$content=awsw_home_blocks(false);$ur_content=awsw_home_blocks(true);}elseif(in_array($slug,['about','privacy','donation-policy','terms'],true)){$_GET['lang']='en';$content=do_shortcode($data[2]);$_GET['lang']='ur';$ur_content=do_shortcode($data[2]);unset($_GET['lang']);}$id=wp_insert_post(['post_type'=>'page','post_status'=>$data[3]??'publish','post_name'=>$slug,'post_title'=>$data[0],'post_content'=>$content]);if($id&&!is_wp_error($id)){$ids[$slug]=$id;update_post_meta($id,'_awsw_ur_title',$data[1]);update_post_meta($id,'_awsw_ur_content',$ur_content);}}
+    $ids=[];foreach(awsw_starter_pages() as $slug=>$data){$p=get_page_by_path($slug);if($p){$ids[$slug]=$p->ID;continue;}$content='<!-- wp:shortcode -->'.$data[2].'<!-- /wp:shortcode -->';$ur_content=$content;if($slug==='home'){$content=awsw_home_blocks(false);$ur_content=awsw_home_blocks(true);}elseif(in_array($slug,['about','privacy','donation-policy','terms'],true)){$_GET['lang']='en';$content=do_shortcode($data[2]);$_GET['lang']='ur';$ur_content=do_shortcode($data[2]);unset($_GET['lang']);}if(isset(awsw_programs()[$slug])){$_GET['lang']='en';$content='<!-- wp:html -->'.do_shortcode('[awsw_program program="'.$slug.'" part="intro"]').'<!-- /wp:html --><!-- wp:shortcode -->[awsw_program program="'.$slug.'" part="dynamic"]<!-- /wp:shortcode -->';$_GET['lang']='ur';$ur_content='<!-- wp:html -->'.do_shortcode('[awsw_program program="'.$slug.'" part="intro"]').'<!-- /wp:html --><!-- wp:shortcode -->[awsw_program program="'.$slug.'" part="dynamic"]<!-- /wp:shortcode -->';}$_GET['lang']='en';$content=awsw_editable_static_sections($content);$_GET['lang']='ur';$ur_content=awsw_editable_static_sections($ur_content);unset($_GET['lang']);if($slug==='about'){$content.='<!-- wp:shortcode -->[awsw_story_links]<!-- /wp:shortcode -->';$ur_content.='<!-- wp:shortcode -->[awsw_story_links]<!-- /wp:shortcode -->';}$id=wp_insert_post(['post_type'=>'page','post_status'=>$data[3]??'publish','post_name'=>$slug,'post_title'=>$data[0],'post_content'=>$content]);if($id&&!is_wp_error($id)){$ids[$slug]=$id;update_post_meta($id,'_awsw_ur_title',$data[1]);update_post_meta($id,'_awsw_ur_content',$ur_content);}}
     if(!get_option('page_on_front')&&isset($ids['home'])){update_option('show_on_front','page');update_option('page_on_front',$ids['home']);}
     update_option('timezone_string','Asia/Karachi');flush_rewrite_rules();return $ids;
 }
