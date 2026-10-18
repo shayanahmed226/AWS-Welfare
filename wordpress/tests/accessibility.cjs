@@ -1,0 +1,4 @@
+// Optional automated audit: install @axe-core/playwright in an isolated QA tool directory.
+const {chromium}=require('playwright');
+const {AxeBuilder}=require(process.env.AWSW_AXE_MODULE || '@axe-core/playwright');
+(async()=>{const b=await chromium.launch({executablePath:process.env.AWSW_CHROMIUM || '/usr/bin/chromium',args:['--no-sandbox']});const c=await b.newContext({viewport:{width:390,height:844}});const p=await c.newPage();let violations=0;for(const path of ['/?lang=en','/?lang=ur','/donate/?lang=en','/donate/?lang=ur','/volunteer/?lang=en']){await p.goto('http://localhost:8088'+path);const r=await new AxeBuilder({page:p}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();violations+=r.violations.length;console.log(JSON.stringify({path,violations:r.violations.map(v=>({id:v.id,impact:v.impact,targets:v.nodes.map(n=>n.target)}))}));}await b.close();if(violations)process.exit(1)})().catch(e=>{console.error(e);process.exit(1)});

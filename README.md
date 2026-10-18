@@ -1,5 +1,10 @@
 # AWS Welfare
 
+The installable bilingual WordPress implementation is in [wordpress/](wordpress/README.md), including separate theme/plugin ZIPs, source, tests and operations guides. It provides persistent manual bank-transfer verification and administration. WordPress needs PHP/database hosting; GitHub Pages cannot run it.
+
+## Earlier static prototype
+
+
 Responsive, animated website for Armughan Memorial Welfare Society, built with Vite and vanilla JavaScript.
 
 ## Develop
